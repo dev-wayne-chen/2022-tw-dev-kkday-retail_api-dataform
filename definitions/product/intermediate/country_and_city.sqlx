@@ -1,0 +1,47 @@
+config {
+    type: "table",
+    tags: ["product"]
+}
+
+  -- The Query is too long in the main query; hence, separate attributes from product table for later join
+  -- Reformat cities
+WITH
+  cities_reformatted AS(
+  SELECT
+    id,
+    ARRAY_AGG(JSON_EXTRACT_SCALAR(city, '$.city_code')) AS city_code,
+    ARRAY_AGG(JSON_EXTRACT_SCALAR(city, '$.country_code')) AS country_code
+  FROM
+    ${ref('raw_product_catalog_*')} AS c,
+    UNNEST(JSON_EXTRACT_ARRAY(cities)) AS city
+  WHERE
+    _TABLE_SUFFIX = FORMAT_DATE('%Y%m%d', DATE_SUB(CURRENT_DATE("Asia/Taipei"), INTERVAL 1 DAY))
+  GROUP BY
+    id ),
+  -- Remove duplicate countries
+  country_code AS (
+  SELECT
+    id,
+    SPLIT(STRING_AGG(DISTINCT country_code, ","), ",") AS country_code
+  FROM
+    cities_reformatted,
+    UNNEST(country_code) AS country_code
+  GROUP BY
+    1 ),
+  cities_and_country AS (
+  SELECT
+    r.id,
+    [ STRUCT("country_code" AS KEY,
+      STRUCT(c.country_code AS text) AS value),
+    STRUCT("city_code" AS KEY,
+      STRUCT(r.city_code AS text) AS value) ] AS attributes
+  FROM
+    cities_reformatted AS r
+  INNER JOIN
+    country_code AS c
+  ON
+    r.id = c.id )
+SELECT
+  *
+FROM
+  cities_and_country

@@ -1,0 +1,20 @@
+config {
+    type: "operations",
+    hasOutput: true,
+    tags: ["product"]
+}
+
+LOAD DATA OVERWRITE
+  ${constants.DAILY_RAW_PRODUCT_TABLE} ( id INT64,
+    description STRING,
+    title STRING,
+    categories STRING,
+    priceInfo STRUCT< currencyCode STRING,
+    price FLOAT64 >,
+    property STRING,
+    cities STRING,
+    languageCode STRING,
+    rating STRUCT < ratingHistogram ARRAY<INT64> > )
+    OPTIONS( description= "the base daily products table loaded from json files" )
+FROM FILES ( format = 'JSON',
+    uris = ['gs://kkday-retail-ai-poc-data/D/product_summary/*.json'] );

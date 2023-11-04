@@ -1,0 +1,15 @@
+config {
+    type: "table",
+    tags: ["product"],
+    description: "combine country_and_city and property_and_wifi as a complete Retail API attribute column"
+}
+
+SELECT
+  t.* EXCEPT(attributes),
+  ARRAY_CONCAT(t.attributes, p.attributes) AS attributes
+FROM
+  ${ref('country_and_city')} AS t
+INNER JOIN
+  ${ref('property_and_wifi')} AS p
+ON
+  CAST(t.id AS STRING) = p.id

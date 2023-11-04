@@ -1,0 +1,70 @@
+config {
+    type: "incremental",
+    description: "Product catalog ready for import to Retail API",
+    tags: ["product"]
+}
+
+WITH
+  -- Step 1: Create result with review and mapping categories
+  catalog_without_attribute AS (
+  SELECT
+    p.* EXCEPT( categories,
+      rating ),
+    c.categories,
+    STRUCT( w.ratingCount,
+      w.averageRating,
+      p.rating.ratingHistogram ) AS rating
+  FROM
+    ${ref('raw_product_catalog_*')} AS p
+  LEFT JOIN
+    ${ref('rating')} AS w
+  ON
+    p.id = w.id
+  LEFT JOIN
+    ${ref('mapped_category')} AS c
+  ON
+    p.id = c.product_id
+  WHERE
+    _TABLE_SUFFIX = FORMAT_DATE('%Y%m%d', DATE_SUB(CURRENT_DATE("Asia/Taipei"), INTERVAL 1 DAY)) ),
+  -- Step 2: Join Attributes (including Wifi)
+  catalog_with_attributes AS (
+  SELECT
+    CAST(c.id AS STRING) AS id,
+    c.* EXCEPT(id,
+      property,
+      cities),
+    a.attributes
+  FROM
+    catalog_without_attribute AS c
+  LEFT JOIN
+    ${ref('attributes')} AS a
+  ON
+    CAST(c.id AS STRING) = CAST(a.id AS STRING) )
+SELECT
+  id,
+  categories,
+  title,
+  description,
+  languageCode,
+  attributes,
+  priceInfo,
+  rating
+FROM
+  catalog_with_attributes
+
+pre_operations {
+  CREATE OR REPLACE TABLE
+    ${self()} ( id STRING NOT NULL,
+      categories ARRAY<STRING>,
+      title STRING NOT NULL,
+      description STRING,
+      languageCode STRING,
+      attributes ARRAY<STRUCT<KEY STRING,
+      value STRUCT<text ARRAY<STRING>>>>,
+      priceInfo STRUCT< price FLOAT64,
+      currencyCode STRING >,
+      rating STRUCT<ratingCount INT64,
+      averageRating FLOAT64,
+      ratingHistogram ARRAY<INT64>>,
+      );
+}

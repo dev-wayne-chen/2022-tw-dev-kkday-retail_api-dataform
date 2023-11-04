@@ -1,0 +1,13 @@
+config {
+    type: "operations",
+    hasOutput: true,
+    tags: ["product"]
+}
+
+LOAD DATA OVERWRITE
+  ${constants.DAILY_RAW_WIFI_SIM_TABLE} ( prod_mid INT64,
+    feature STRUCT < arr INT64,
+    tag_type STRING >,
+    prod_oid INT64 ) OPTIONS( description="the base daily wifi table loaded from json files" )
+FROM FILES ( format = 'JSON',
+    uris = ['gs://kkday-retail-ai-poc-data/D/product_wifi_sim/*.json'] )

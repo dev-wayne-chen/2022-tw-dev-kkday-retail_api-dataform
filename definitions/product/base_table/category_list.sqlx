@@ -1,0 +1,22 @@
+config {
+    type: "table",
+    tags: ["product"],
+    description: "the base daily category list table"
+}
+
+SELECT
+  *
+FROM
+  ${self()}
+GROUP BY
+  1,
+  2
+
+pre_operations {
+  LOAD DATA OVERWRITE
+    ${self()} ( code_value STRING,
+      code_param STRING )
+  FROM FILES ( format = 'CSV',
+      skip_leading_rows=1,
+      uris = ['gs://kkday-retail-ai-poc-data/D/code/*.csv'] )
+}

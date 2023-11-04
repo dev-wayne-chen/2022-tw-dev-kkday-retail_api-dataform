@@ -1,0 +1,47 @@
+config {
+    type: "table",
+    description: "Mapping products and category_list, which is converted in to list of categories",
+    tags: ["product"]
+}
+
+WITH
+  -- Step1: raw_product_catalog_* table's category is a string column; hence, split strings into an array
+  splited_category AS (
+  SELECT
+    id,
+    ARRAY(
+    SELECT
+      *
+    FROM
+      UNNEST(SPLIT(SUBSTR(categories, 2, LENGTH(categories) - 2), '"')) ) AS categories,
+  FROM
+    ${ref('raw_product_catalog_*')}
+  WHERE
+    _TABLE_SUFFIX = FORMAT_DATE('%Y%m%d', DATE_SUB(CURRENT_DATE("Asia/Taipei"), INTERVAL 1 DAY)) ),
+  -- Step2: Modify table "code" to create a mapped_category for later join, to represent "Category > Subcategory"
+  mapping_cate_list AS (
+  SELECT
+    code_value,
+    CONCAT(code_param, " > ", code_value) AS mapped_category
+  FROM
+    ${ref('category_list')} ),
+  -- Step3: inner join "splited_category" and mapped_category cte tables and we'll get an cleaned list
+  cleaned_categories AS (
+  SELECT
+    id AS product_id,
+    -- inner join "splited_category" and "code" tables and we'll get an cleaned list
+    ARRAY(
+    SELECT
+      mapped_category
+    FROM
+      UNNEST(categories) AS category
+    INNER JOIN
+      mapping_cate_list AS m
+    ON
+      category = m.code_value) AS categories
+  FROM
+    splited_category )
+SELECT
+  *
+FROM
+  cleaned_categories

@@ -1,0 +1,8 @@
+{
+  "defaultSchema": "dataform_retail_api",
+  "assertionSchema": "dataform_assertions",
+  "warehouse": "bigquery",
+  "defaultDatabase": "kkday-retail-ai-poc",
+  "defaultLocation": "asia-east1"
+}
+    

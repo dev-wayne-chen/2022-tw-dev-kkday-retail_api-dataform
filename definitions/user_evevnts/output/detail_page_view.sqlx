@@ -1,0 +1,19 @@
+config {
+    type: "table",
+    tags: ["user_event"]
+}
+
+SELECT
+  visitorId,
+  "detail-page-view" AS eventType,
+  CAST(FORMAT_TIMESTAMP("%Y-%m-%dT%I:%M:%SZ",eventTime) AS STRING) AS eventTime,
+  [STRUCT(STRUCT(product_id AS id) AS product) ] AS productDetails,
+  STRUCT(userInfo_userId AS userId) AS userInfo
+FROM
+  ${ref('action_*')}
+WHERE
+  _TABLE_SUFFIX = FORMAT_DATE('%Y%m%d', DATE_SUB(CURRENT_DATE("Asia/Taipei"), INTERVAL 1 DAY))
+  AND eventType = "view"
+  AND product_id IS NOT NULL
+  AND visitorId IS NOT NULL
+  AND DATE(eventTime) = DATE_SUB(CURRENT_DATE("Asia/Taipei"), INTERVAL 1 DAY)
