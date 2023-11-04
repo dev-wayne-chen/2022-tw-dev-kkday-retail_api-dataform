@@ -59,7 +59,7 @@ pre_operations {
       title STRING NOT NULL,
       description STRING,
       languageCode STRING,
-      attributes ARRAY<STRUCT<KEY STRING,
+      attributes ARRAY<STRUCT<key STRING,
       value STRUCT<text ARRAY<STRING>>>>,
       priceInfo STRUCT< price FLOAT64,
       currencyCode STRING >,
