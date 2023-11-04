@@ -53,16 +53,22 @@ FROM
   catalog_with_attributes
 
 pre_operations {
-  CREATE OR REPLACE TABLE
+  DROP TABLE
+    ${self()}
+
+  ---
+
+  CREATE TABLE
     ${self()} ( id STRING NOT NULL,
       categories ARRAY<STRING>,
       title STRING NOT NULL,
       description STRING,
       languageCode STRING,
       attributes ARRAY<STRUCT<key STRING,
+      -- If seeing "KEY" instead of "key", modify back to key, otherwise import will fail
       value STRUCT<text ARRAY<STRING>>>>,
-      priceInfo STRUCT< price FLOAT64,
-      currencyCode STRING >,
+      priceInfo STRUCT<currencyCode STRING,
+      price FLOAT64>,
       rating STRUCT<ratingCount INT64,
       averageRating FLOAT64,
       ratingHistogram ARRAY<INT64>>,

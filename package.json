@@ -1,6 +1,6 @@
 {
   "name": "retail_api_user_event",
   "dependencies": {
-    "@dataform/core": "2.4.2"
+    "@dataform/core": "2.6.3"
   }
 }
