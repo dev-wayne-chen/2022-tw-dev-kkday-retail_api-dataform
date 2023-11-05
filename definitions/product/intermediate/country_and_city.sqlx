@@ -1,11 +1,11 @@
 config {
     type: "table",
+    description: "attributes table will combine this table",
     tags: ["product"]
 }
 
-  -- The Query is too long in the main query; hence, separate attributes from product table for later join
-  -- Reformat cities
 WITH
+  -- Reformat cities
   cities_reformatted AS(
   SELECT
     id,
@@ -28,6 +28,7 @@ WITH
     UNNEST(country_code) AS country_code
   GROUP BY
     1 ),
+  -- Combine country and city together
   cities_and_country AS (
   SELECT
     r.id,

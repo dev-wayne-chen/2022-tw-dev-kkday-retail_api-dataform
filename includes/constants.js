@@ -7,6 +7,7 @@ const yesterday = new Date();
 yesterday.setDate(yesterday.getDate() - 1);
 const yesterday_no_separation = yesterday.toISOString().split('T')[0].replace(/-/g, '');
 
+// Create D date in format YYYY-MM-DD for loading action csv file, because action file's date show the upload date instead of event date
 const today = new Date();
 const today_dash_separation = today.toISOString().split('T')[0];
 

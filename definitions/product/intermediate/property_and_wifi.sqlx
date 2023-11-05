@@ -1,10 +1,11 @@
 config {
     type: "table",
+    description: "attributes table will combine this table",
     tags: ["product"]
 }
 
 WITH
-  -- Step 1: Extract product_catalog's attributes(property)
+  -- Extract product_catalog's attributes(property)
   attributes_flatten AS (
   SELECT
     CAST(id AS STRING) AS id,
@@ -18,34 +19,22 @@ WITH
     ${ref('raw_product_catalog_*')} AS c
   WHERE
     _TABLE_SUFFIX = FORMAT_DATE('%Y%m%d', DATE_SUB(CURRENT_DATE("Asia/Taipei"), INTERVAL 1 DAY)) ),
-  -- Step 2: Wifi is unpivoted format so it cannot be joined with attributes directly
-  --         this step will make wifi table pivoted, adding each value in feature.tag_type to a new column
+  -- Wifi is unpivoted format so it cannot be joined with attributes directly
+  -- this step will make wifi table pivoted, adding each value in feature.tag_type to a new column
   wifi_flatten AS (
   SELECT
     CAST(prod_mid AS STRING) AS id,
-    COALESCE(MAX(CASE
-          WHEN feature.tag_type = 'travel_day' THEN CAST(feature.arr AS STRING)
-      END
-        ), '') AS travel_day,
-    COALESCE(MAX(CASE
-          WHEN feature.tag_type = 'product_type' THEN CAST(feature.arr AS STRING)
-      END
-        ), '') AS product_type,
-    COALESCE(MAX(CASE
-          WHEN feature.tag_type = 'pickup_method' THEN CAST(feature.arr AS STRING)
-      END
-        ), '') AS pickup_method,
-    COALESCE(MAX(CASE
-          WHEN feature.tag_type = 'product_feature' THEN CAST(feature.arr AS STRING)
-      END
-        ), '') AS product_feature
+    COALESCE(MAX(CASE WHEN feature.tag_type = 'travel_day' THEN CAST(feature.arr AS STRING) END ), '') AS travel_day,
+    COALESCE(MAX(CASE WHEN feature.tag_type = 'product_type' THEN CAST(feature.arr AS STRING) END ), '') AS product_type,
+    COALESCE(MAX(CASE WHEN feature.tag_type = 'pickup_method' THEN CAST(feature.arr AS STRING) END ), '') AS pickup_method,
+    COALESCE(MAX(CASE WHEN feature.tag_type = 'product_feature' THEN CAST(feature.arr AS STRING) END ), '') AS product_feature
   FROM
     ${ref('raw_wifi_*')}
   WHERE
     _TABLE_SUFFIX = FORMAT_DATE('%Y%m%d', DATE_SUB(CURRENT_DATE("Asia/Taipei"), INTERVAL 1 DAY))
   GROUP BY
     prod_mid ),
-  -- Step3: Use left join to mapping attributes and wifi tables
+  -- Use left join to mapping attributes and wifi tables
   combined AS (
   SELECT
     a.id,
@@ -67,39 +56,30 @@ WITH
     wifi_flatten AS w
   ON
     a.id = w.id ),
-  -- Step4: Aggregate all attributes into one column as a list
+  -- Aggregate all attributes into one column as a list
   array_list AS (
   SELECT
     CAST(id AS STRING) AS id,
-    [ STRUCT("guide_lang" AS KEY,
+    [ STRUCT("guide_lang" AS key,
       STRUCT([guide_lang] AS text) AS value),
-    STRUCT("schedule_day" AS KEY,
-      STRUCT([schedule_day] AS text) AS value),
-    STRUCT("schedule_hour" AS KEY,
-      STRUCT([schedule_hour] AS text) AS value),
-    STRUCT("schedule_minutes" AS KEY,
-      STRUCT([schedule_minutes] AS text) AS value),
-    STRUCT("schedule_enable" AS KEY,
-      STRUCT([schedule_enable] AS text) AS value),
-    STRUCT("voice_guide_lang" AS KEY,
-      STRUCT([voice_guide_lang] AS text) AS value),
-    STRUCT("travel_day" AS KEY,
-      STRUCT([travel_day] AS text) AS value),
-    STRUCT("product_type" AS KEY,
-      STRUCT([product_type] AS text) AS value),
-    STRUCT("pickup_method" AS KEY,
-      STRUCT([pickup_method] AS text) AS value),
-    STRUCT("product_feature" AS KEY,
-      STRUCT([product_feature] AS text) AS value) ] AS attributes
+    STRUCT("schedule_day" AS key, STRUCT([schedule_day] AS text) AS value),
+    STRUCT("schedule_hour" AS key, STRUCT([schedule_hour] AS text) AS value),
+    STRUCT("schedule_minutes" AS key, STRUCT([schedule_minutes] AS text) AS value),
+    STRUCT("schedule_enable" AS key, STRUCT([schedule_enable] AS text) AS value),
+    STRUCT("voice_guide_lang" AS key, STRUCT([voice_guide_lang] AS text) AS value),
+    STRUCT("travel_day" AS key, STRUCT([travel_day] AS text) AS value),
+    STRUCT("product_type" AS key, STRUCT([product_type] AS text) AS value),
+    STRUCT("pickup_method" AS key, STRUCT([pickup_method] AS text) AS value),
+    STRUCT("product_feature" AS key, STRUCT([product_feature] AS text) AS value) ] AS attributes
   FROM
     combined ),
-  -- Step5: Remove elements that have no value in the list
+  -- Remove elements that have no value in the list
   final AS (
   SELECT
     id,
     ARRAY(
     SELECT
-      AS STRUCT attribute.key AS KEY, STRUCT(attribute.value.text AS text) AS value
+      AS STRUCT attribute.key AS key, STRUCT(attribute.value.text AS text) AS value
     FROM
       UNNEST(array_list.attributes) AS attribute
     WHERE

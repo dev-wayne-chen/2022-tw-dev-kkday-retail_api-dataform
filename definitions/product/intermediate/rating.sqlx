@@ -5,21 +5,16 @@ config {
 }
 
 WITH
-  -- Step4: Flatten ratingHistogram ARRAY AND multiply score FOR later calculation
+  -- Flatten ratingHistogram ARRAY AND multiply score FOR later calculation
   rating_score AS (
   SELECT
     id,
-    ( rating.ratingHistogram[
-    OFFSET
-      (0)] * 1 + rating.ratingHistogram[
-    OFFSET
-      (1)] * 2 + rating.ratingHistogram[
-    OFFSET
-      (2)] * 3 + rating.ratingHistogram[
-    OFFSET
-      (3)] * 4 + rating.ratingHistogram[
-    OFFSET
-      (4)] * 5 ) AS total_score,
+    ( 
+    rating.ratingHistogram[OFFSET(0)] * 1 + 
+    rating.ratingHistogram[OFFSET(1)] * 2 + 
+    rating.ratingHistogram[OFFSET(2)] * 3 + 
+    rating.ratingHistogram[OFFSET(3)] * 4 + 
+    rating.ratingHistogram[OFFSET(4)] * 5 ) AS total_score,
     SUM(rating_counts) AS ratingCount
   FROM
     ${ref('raw_product_catalog_*')},
@@ -29,16 +24,12 @@ WITH
   GROUP BY
     1,
     2 ),
-  -- Step5: Count total reviews AND compute average rating FOR each SKU
+  -- Count total reviews AND compute average rating FOR each SKU
   weighted_avg_score AS (
   SELECT
     id,
     ratingCount,
-  IF
-    -- set default score value to 3 if no review
-    (total_score = 0,
-      3,
-      ROUND(total_score / ratingCount, 1) ) AS averageRating
+    IF(total_score = 0, 3, ROUND(total_score / ratingCount, 1) ) AS averageRating -- set default score value to 3 if no review
   FROM
     rating_score )
 SELECT
