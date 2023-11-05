@@ -32,10 +32,10 @@ WITH
   cities_and_country AS (
   SELECT
     r.id,
-    [ STRUCT("country_code" AS KEY,
-      STRUCT(c.country_code AS text) AS value),
-    STRUCT("city_code" AS KEY,
-      STRUCT(r.city_code AS text) AS value) ] AS attributes
+    [ 
+      STRUCT("country_code" AS key, STRUCT(c.country_code AS text) AS value),
+      STRUCT("city_code" AS key, STRUCT(r.city_code AS text) AS value) 
+    ] AS attributes
   FROM
     cities_reformatted AS r
   INNER JOIN

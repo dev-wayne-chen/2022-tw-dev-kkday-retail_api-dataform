@@ -1,0 +1,23 @@
+config {
+    type: "view",
+    description: "the full schema of user_event for reference, this is not part of the pipeline",
+    materialized: true,
+    disabled: true
+}
+
+CREATE TABLE
+  ${self()} ( 
+    eventType STRING NOT NULL,
+    visitorId STRING NOT NULL,
+    eventTime STRING NOT NULL,
+    experimentIds ARRAY<STRING>,
+    attributionToken STRING,
+    productDetails ARRAY<STRUCT<product STRUCT<id STRING NOT NULL> NOT NULL>>,
+    userInfo STRUCT<userId STRING,
+    ipAddress STRING,
+    userAgent STRING,
+    directUserRequest BOOL>,
+    uri STRING,
+    referrerUri STRING,
+    pageViewId STRING 
+  )

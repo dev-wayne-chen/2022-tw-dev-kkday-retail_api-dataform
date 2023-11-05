@@ -1,11 +1,16 @@
 config {
-    type: "table",
-    tags: ["user_event"]
+    type: "incremental",
+    tags: ["user_event"],
+    description: "This table will be imported to Retail API daily"
 }
 
+  -- Retail API has strict table tschema requirements, for example visitorId column must be Required and STRING,
+  -- type: "table" will overwrite table schema, which converts Required columns to Nullable, such changes will cause import failed
+  -- and there's no fast way to set the column to Required;
+  -- therefore, everytime this query runs, DROP TABLE -> CREATE TABLE -> APPEND to avoid schema overwrite
 SELECT
-  visitorId,
   "detail-page-view" AS eventType,
+  visitorId,
   CAST(FORMAT_TIMESTAMP("%Y-%m-%dT%I:%M:%SZ",eventTime) AS STRING) AS eventTime,
   [STRUCT(STRUCT(product_id AS id) AS product) ] AS productDetails,
   STRUCT(userInfo_userId AS userId) AS userInfo
@@ -17,3 +22,17 @@ WHERE
   AND product_id IS NOT NULL
   AND visitorId IS NOT NULL
   AND DATE(eventTime) = DATE_SUB(CURRENT_DATE("Asia/Taipei"), INTERVAL 1 DAY)
+
+pre_operations {
+  DROP TABLE IF EXISTS
+    ${self()}
+
+  ---
+
+  CREATE TABLE
+    ${self()} ( eventType STRING NOT NULL,
+      visitorId STRING NOT NULL,
+      eventTime STRING NOT NULL,
+      productDetails ARRAY<STRUCT<product STRUCT<id STRING NOT NULL> NOT NULL>>,
+      userInfo STRUCT<userId STRING>)
+}
