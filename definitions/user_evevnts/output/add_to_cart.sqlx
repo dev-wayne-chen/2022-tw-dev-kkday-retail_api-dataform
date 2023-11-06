@@ -1,0 +1,40 @@
+config {
+    type: "incremental",
+    schema: dataform.projectConfig.vars.user_event_dataset,
+    description: "This table will be imported to Retail API daily",
+    tags: ["user_event"]
+}
+
+SELECT
+  visitorId,
+  cartId,
+  "add-to-cart" AS eventType,
+  FORMAT_TIMESTAMP("%Y-%m-%dT%I:%M:%SZ",eventTime) AS eventTime,
+  [STRUCT(STRUCT(product_id AS id) AS product,
+    product_quantity AS quantity)] AS productDetails,
+  STRUCT(userInfo_userId AS userId) AS userInfo
+FROM
+  ${ref('action_*')}
+WHERE
+  _TABLE_SUFFIX = FORMAT_DATE('%Y%m%d', DATE_SUB(CURRENT_DATE("Asia/Taipei"), INTERVAL 1 DAY))
+  AND eventType IN ("goto_book",
+    "booking",
+    "add_cart")
+  AND product_id IS NOT NULL
+  AND visitorId IS NOT NULL
+
+pre_operations {
+  DROP TABLE IF EXISTS
+    ${self()}
+
+  ---
+
+  CREATE TABLE
+    ${self()} ( visitorId STRING NOT NULL,
+      cartId STRING NOT NULL,
+      eventType STRING NOT NULL,
+      eventTime STRING NOT NULL,
+      productDetails ARRAY<STRUCT<product STRUCT<id STRING NOT NULL>,
+      quantity INT64 NOT NULL> NOT NULL>,
+      userInfo STRUCT<userId STRING> )
+}
