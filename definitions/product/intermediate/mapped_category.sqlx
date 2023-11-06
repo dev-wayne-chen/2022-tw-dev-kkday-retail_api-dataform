@@ -1,5 +1,6 @@
 config {
     type: "table",
+    schema: dataform.projectConfig.vars.product_catalog_dataset,
     description: "Mapping products and category_list, which is converted in to list of categories",
     tags: ["product"]
 }

@@ -1,8 +1,12 @@
 {
-  "defaultSchema": "dataform_retail_api",
+  "defaultSchema": "dataform",
   "assertionSchema": "dataform_assertions",
   "warehouse": "bigquery",
   "defaultDatabase": "kkday-retail-ai-poc",
-  "defaultLocation": "asia-east1"
+  "defaultLocation": "asia-east1",
+  "vars": {
+    "product_catalog_dataset":"dataform_product",
+    "user_event_dataset":"dataform_user_events"
+  }
 }
     

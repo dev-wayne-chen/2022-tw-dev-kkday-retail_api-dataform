@@ -1,7 +1,8 @@
 config {
     type: "table",
-    tags: ["product"],
-    description: "the base daily category list table"
+    schema: dataform.projectConfig.vars.product_catalog_dataset,
+    description: "the base daily category list table",
+    tags: ["product"]
 }
 
 SELECT

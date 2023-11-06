@@ -1,7 +1,8 @@
 config {
     type: "table",
-    tags: ["product"],
-    description: "combine country_and_city and property_and_wifi as a complete Retail API attribute column"
+    schema: dataform.projectConfig.vars.product_catalog_dataset,
+    description: "combine country_and_city and property_and_wifi as a complete Retail API attribute column",
+    tags: ["product"]
 }
 
 SELECT

@@ -1,7 +1,8 @@
 config {
     type: "incremental",
-    tags: ["user_event"],
-    description: "This table will be imported to Retail API daily"
+    schema: dataform.projectConfig.vars.user_event_dataset,
+    description: "This table will be imported to Retail API daily",
+    tags: ["user_event"]
 }
 
   -- Retail API has strict table tschema requirements, for example visitorId column must be Required and STRING,

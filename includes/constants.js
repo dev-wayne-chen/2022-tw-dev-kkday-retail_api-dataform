@@ -1,6 +1,6 @@
 // Declare dataset location
-const product_catalog = "dataform_retail_api";
-const user_event = "dataform_retail_api";
+const product_catalog = dataform.projectConfig.vars.product_catalog_dataset;
+const user_event = dataform.projectConfig.vars.user_event_dataset;
 
 // Create D-1 date in format YYYYMMDD
 const yesterday = new Date();
