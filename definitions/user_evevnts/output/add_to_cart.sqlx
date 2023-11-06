@@ -5,6 +5,10 @@ config {
     tags: ["user_event"]
 }
 
+  -- Retail API has strict table schema requirements, for example visitorId column must be Required and STRING,
+  -- type: "table" will overwrite table schema, which converts Required columns to Nullable, such changes will cause import failed
+  -- and there's no fast way to set the column to Required;
+  -- therefore, everytime this query runs, DROP TABLE -> CREATE TABLE -> APPEND to avoid schema overwrite
 SELECT
   visitorId,
   cartId,
