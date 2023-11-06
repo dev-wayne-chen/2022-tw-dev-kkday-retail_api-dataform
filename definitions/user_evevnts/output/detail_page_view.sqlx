@@ -22,7 +22,6 @@ WHERE
   AND eventType = "view"
   AND product_id IS NOT NULL
   AND visitorId IS NOT NULL
-  AND DATE(eventTime) = DATE_SUB(CURRENT_DATE("Asia/Taipei"), INTERVAL 1 DAY)
 
 pre_operations {
   DROP TABLE IF EXISTS

@@ -20,7 +20,6 @@ WHERE
   _TABLE_SUFFIX = FORMAT_DATE('%Y%m%d', DATE_SUB(CURRENT_DATE("Asia/Taipei"), INTERVAL 1 DAY))
   AND eventType = "home"
   AND visitorId IS NOT NULL
-  AND DATE(eventTime) = DATE_SUB(CURRENT_DATE("Asia/Taipei"), INTERVAL 1 DAY)
 
 pre_operations {
   DROP TABLE IF EXISTS
