@@ -5,6 +5,7 @@ config {
     tags: ["product"]
 }
 
+-- Files contain duplicate data, use groupby to eliminate this issue
 SELECT
   *
 FROM
