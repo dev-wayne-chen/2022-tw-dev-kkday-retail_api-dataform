@@ -1,6 +1,6 @@
 config {
     type: "incremental",
-    schema: dataform.projectConfig.vars.user_event_dataset,
+    schema: "dataform_user_events",
     description: "This table will be imported to Retail API daily",
     tags: ["user_event"]
 }
@@ -34,11 +34,13 @@ pre_operations {
   ---
 
   CREATE TABLE
-    ${self()} ( visitorId STRING NOT NULL,
-      cartId STRING NOT NULL,
-      eventType STRING NOT NULL,
-      eventTime STRING NOT NULL,
-      productDetails ARRAY<STRUCT<product STRUCT<id STRING NOT NULL>,
-      quantity INT64 NOT NULL> NOT NULL>,
-      userInfo STRUCT<userId STRING> )
+    ${self()} ( 
+        visitorId STRING NOT NULL,
+        cartId STRING NOT NULL,
+        eventType STRING NOT NULL,
+        eventTime STRING NOT NULL,
+        productDetails ARRAY<STRUCT<product STRUCT<id STRING NOT NULL>,
+        quantity INT64 NOT NULL> NOT NULL>,
+        userInfo STRUCT<userId STRING> 
+    )
 }

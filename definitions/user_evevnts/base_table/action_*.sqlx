@@ -1,19 +1,25 @@
 config {
     type: "operations",
-    schema: dataform.projectConfig.vars.user_event_dataset,
+    schema: "dataform_user_events",
     hasOutput: true,
     tags: ["user_event"]
 }
 
 LOAD DATA OVERWRITE
-  ${constants.DAILY_USER_EVENT_TABLE} ( visitorId STRING,
+  ${constants.DAILY_USER_EVENT_TABLE} ( 
+    visitorId STRING,
     eventType STRING,
     eventTime DATETIME OPTIONS(description="partition key"),
     cartId STRING,
     product_id STRING,
     userInfo_userId STRING,
     product_currencyCode STRING,
-    product_quantity INT64 ) OPTIONS( description="the base daily user_event table loaded from csv files " )
-FROM FILES ( format = 'CSV',
+    product_quantity INT64 
+    ) 
+    OPTIONS( 
+      description="the base daily user_event table loaded from csv files " 
+    )
+FROM FILES ( 
+  format = 'CSV',
     skip_leading_rows=1,
     uris = [${constants.USER_EVENT_FILES}] )
