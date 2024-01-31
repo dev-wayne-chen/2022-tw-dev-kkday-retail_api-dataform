@@ -5,6 +5,7 @@ config {
     tags: ["tw", "product"]
 }
 
+
 WITH
   -- Reformat cities
   cities_reformatted AS(
