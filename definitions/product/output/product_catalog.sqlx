@@ -2,7 +2,7 @@ config {
     type: "incremental",
     schema: "dataform_product",
     description: "Product catalog ready for import to Retail API",
-    tags: ["product"]
+    tags: ["tw", "product"]
 }
 
 -- Retail API has strict table tschema requirements, for example id column must be Required and STRING,

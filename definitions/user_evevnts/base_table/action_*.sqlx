@@ -2,7 +2,7 @@ config {
     type: "operations",
     schema: "dataform_user_events",
     hasOutput: true,
-    tags: ["user_event"]
+    tags: ["tw", "user_event"]
 }
 
 LOAD DATA OVERWRITE

@@ -2,7 +2,7 @@ config {
     type: "operations",
     schema: "dataform_product",
     hasOutput: true,
-    tags: ["product"]
+    tags: ["tw", "product"]
 }
 
 LOAD DATA OVERWRITE

@@ -2,24 +2,13 @@ config {
     type: "incremental",
     schema: "dataform_user_events",
     description: "This table will be imported to Retail API daily",
-    tags: ["user_event"]
+    tags: ["tw", "user_event"]
 }
 
   -- Retail API has strict table schema requirements, for example visitorId column must be Required and STRING,
   -- type: "table" will overwrite table schema, which converts Required columns to Nullable, such changes will cause import failed
   -- and there's no fast way to set the column to Required;
   -- therefore, everytime this query runs, DROP TABLE -> CREATE TABLE -> APPEND to avoid schema overwrite
-SELECT
-  "home-page-view" AS eventType,
-  visitorId,
-  CAST(FORMAT_TIMESTAMP("%Y-%m-%dT%I:%M:%SZ",eventTime) AS STRING) AS eventTime,
-  STRUCT(userInfo_userId AS userId) AS userInfo
-FROM
-  ${ref('action_*')}
-WHERE
-  _TABLE_SUFFIX = FORMAT_DATE('%Y%m%d', DATE_SUB(CURRENT_DATE("Asia/Taipei"), INTERVAL 1 DAY))
-  AND eventType = "home"
-  AND visitorId IS NOT NULL
 
 pre_operations {
   DROP TABLE IF EXISTS
@@ -35,3 +24,17 @@ pre_operations {
         userInfo STRUCT<userId STRING>
     )
 }
+
+SELECT
+  "home-page-view" AS eventType,
+  visitorId,
+  CAST(FORMAT_TIMESTAMP("%Y-%m-%dT%I:%M:%SZ",eventTime) AS STRING) AS eventTime,
+  STRUCT(userInfo_userId AS userId) AS userInfo
+FROM
+  ${ref('action_*')}
+WHERE
+  _TABLE_SUFFIX = FORMAT_DATE('%Y%m%d', DATE_SUB(CURRENT_DATE("Asia/Taipei"), INTERVAL 1 DAY))
+  AND eventType = "home"
+  AND visitorId IS NOT NULL
+
+
