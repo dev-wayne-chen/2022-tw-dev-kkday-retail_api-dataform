@@ -2,7 +2,7 @@ config {
     type: "table",
     schema: "dataform_product",
     description: "Product with rating scores",
-    tags: ["product"]
+    tags: ["tw", "product"]
 }
 
 WITH

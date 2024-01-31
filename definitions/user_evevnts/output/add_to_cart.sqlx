@@ -2,7 +2,7 @@ config {
     type: "incremental",
     schema: "dataform_user_events",
     description: "This table will be imported to Retail API daily",
-    tags: ["user_event"]
+    tags: ["tw", "user_event"]
 }
 
   -- Retail API has strict table schema requirements, for example visitorId column must be Required and STRING,
